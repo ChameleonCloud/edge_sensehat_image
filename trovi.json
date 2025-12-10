@@ -1,0 +1,49 @@
+{
+    "@context": "https://w3id.org/ro/crate/1.1/context",
+    "@graph": [
+        {
+            "@id": "./",
+            "@type": "Dataset",
+            "actionApplication": [
+                {
+                    "@id": "#ChameleonJupyterLab"
+                }
+            ],
+            "author": [
+                {
+                    "@id": "#author_0"
+                }
+            ],
+            "datePublished": "2025-12-10T23:03:09+00:00",
+            "description": "This tutorial artifact showcases the usage of a sense hat housing several environmental sensors of different kinds and an expansion board for adding more GPIO peripherals.",
+            "disambiguatingDescription": "The following tutorial aims to provide a series of examples on how to use following Raspberry Pi Hats  the [Waveshare sense hat's (B)](https://www.waveshare.com/wiki/Sense_HAT_(B)#Product_PK) onboard sensors to record various metrics about the environment on CHI@Edge-hosted Raspberry Pi devices.\n\n\n**The CHI@Edge Sensors and GPIO Tutorial artifact contains the following files**\n\n   * Dockerfile that specifies a container image with the [Adafruit blinka](https://pypi.org/project/Adafruit-Blinka/) and [rpi-lgpio](https://pypi.org/project/rpi-lgpio/) software stack and each sensor's specific [CircuitPython libraries](https://learn.adafruit.com/welcome-to-circuitpython/what-is-circuitpython) for easy usage within python.\n\n   * Jupyter notebook that showcases how to read values using each of the sensors using [AdaFruit Blinka and CircuitPython libraries](https://learn.adafruit.com/welcome-to-circuitpython/what-is-circuitpython).  First, by showing how to lease a pre-configured sense hat-enabled device and then launch a fully featured container with the right device profiles and dependencies and several example scripts showcasing the use of the different sensors.\n\n   * Example Python scripts to read values from the various sensors.\n\n   * Readme with more in-depth information about how this device was set up behind the scenes to accommodate sense hat support. \n\nThis artifact is maintained on a best-effort basis by our support team, contributions to this peripheral support or any peripheral support on CHI@Edge are highly welcome. \n\nWe encourage our users to visit the newly updated official [documentation](https://chameleoncloud.gitbook.io/chi-edge/device-enrollment/peripherals-and-device-profiles) on how to enable peripherals on CHI@Edge devices.\n\nHappy sensing!",
+            "keywords": "example,education",
+            "name": "CHI@Edge Sensors and GPIO tutorial"
+        },
+        {
+            "@id": "trovi.json",
+            "@type": "CreativeWork",
+            "about": {
+                "@id": "./"
+            },
+            "conformsTo": {
+                "@id": "https://w3id.org/ro/crate/1.1"
+            }
+        },
+        {
+            "@id": "#author_0",
+            "@type": "Person",
+            "affiliation": "University of Chicago",
+            "email": "shermanm@uchicago.edu",
+            "name": "Michael Sherman"
+        },
+        {
+            "@id": "#ChameleonJupyterLab",
+            "@type": "SoftwareApplication",
+            "name": "Chameleon JupyterLab",
+            "trovi_arguments": "{}",
+            "trovi_type": "jupyterhub",
+            "url": "https://jupyter.chameleoncloud.org/"
+        }
+    ]
+}
