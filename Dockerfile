@@ -1,31 +1,81 @@
-# Use the balenalib image for Raspberry Pi as the base image
-FROM balenalib/raspberrypi3-64-debian:bookworm
+FROM python:3.13-slim-bookworm AS rpi-sense-builder
 
-# Set environment variables
-ENV DEBIAN_FRONTEND=noninteractive
-ENV UDEV=1
+WORKDIR /app
 
-# Update and install necessary packages
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
 RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-venv \
-    python3-smbus \
-    i2c-tools \
-    libgpiod2 \
-    gpiod \
     git \
-    && apt-get clean \
+    build-essential
+
+RUN pip install setuptools build
+RUN git clone https://github.com/RPi-Distro/RTIMULib \
+    && cd RTIMULib/Linux/python/ \
+    && python3 -m build --wheel --no-isolation --outdir /app/wheels \
+    && pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels sense-hat
+
+FROM python:3.13-slim-bookworm AS waveshare-sense-builder
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y \
+    git \
+    gcc \
+    make \
+    unzip \
+    swig
+
+RUN pip install \
+    setuptools \
+    build
+
+ADD http://abyz.me.uk/lg/lg.zip .
+RUN unzip lg.zip \
+    && cd lg \
+    && make \
+    && make install
+
+
+RUN pip wheel \
+    --no-cache-dir \
+    --no-deps \
+    --wheel-dir /app/wheels \
+    lgpio \
+    rpi-lgpio \
+    sysv_ipc \
+    adafruit-blinka \
+    adafruit-circuitpython-ads1x15 \
+    adafruit-circuitpython-icm20x \
+    adafruit-circuitpython-lps2x \
+    adafruit-circuitpython-shtc3 \
+    adafruit-circuitpython-tcs34725
+
+FROM python:3.13-slim-bookworm AS output
+
+WORKDIR /app
+
+# install runtime utils and deps 
+RUN apt-get update && apt-get install -y \
+    i2c-tools \
+    gpiod \
     && rm -rf /var/lib/apt/lists/*
 
-# Create and activate virtual environment
-RUN python3 -m venv /venv
-ENV PATH="/venv/bin:$PATH"
+COPY --from=rpi-sense-builder /app/wheels /wheels
+COPY --from=waveshare-sense-builder /app/wheels /wheels
+COPY --from=waveshare-sense-builder /usr/local/lib/liblgpio.so.1 /usr/local/lib/
+RUN ldconfig
 
-# Install Adafruit Blinka and rpi-lgpio within the virtual environment
-RUN pip install --upgrade setuptools \
-    && pip install adafruit-blinka adafruit-circuitpython-ads1x15 adafruit-circuitpython-icm20x adafruit-circuitpython-lps2x adafruit-circuitpython-shtc3 adafruit-circuitpython-tcs34725 rpi-lgpio
+# install dependencies
+RUN pip install \
+    --no-cache \
+    /wheels/* \
+    && rm -rf /wheels/
 
-# Copy Adafruit example scripts to /examples
-COPY examples /examples
+COPY examples /app/examples
 
+ENTRYPOINT [ "/bin/bash" ]
 CMD ["sleep", "infinity"]
